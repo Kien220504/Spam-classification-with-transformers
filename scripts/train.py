@@ -70,13 +70,16 @@ def main():
     for model_name in MODEL_NAMES:
 
         tokenizer = AutoTokenizer.from_pretrained(model_name)
+
         def preprocess_function(examples):
-            return tokenizer(examples['v2'], truncation=True)
+            tokenized = tokenizer(examples['v2'], truncation=True)
+            tokenized['labels'] = examples['v1']
+            return tokenized
+        
         tokenized_datasets = dataset.map(preprocess_function, batched=True)
         data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
         train(model_name, tokenizer, tokenized_datasets, data_collator)
 
 if __name__ == "__main__" :
     main()
-
                                             
