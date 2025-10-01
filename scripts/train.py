@@ -13,7 +13,7 @@ MODEL_NAMES = [
 
 def train(model_name, tokenizer, tokenized_datasets, data_collator):
 
-    model = AutoModelForSequenceClassification(model_name, num_labels=2)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
 
     # Compute metrics
     accuracy = evaluate.load('accuracy')
@@ -78,4 +78,5 @@ def main():
 
 if __name__ == "__main__" :
     main()
+
                                             
