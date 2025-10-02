@@ -1,17 +1,13 @@
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, DataCollatorWithPadding, TrainingArguments, Trainer
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, DataCollatorWithPadding, TrainingArguments, Trainer, EarlyStoppingCallback
 import evaluate
 import numpy as np
 import os
 
-# Define models name
-MODEL_NAMES = [
-    "distilbert-base-uncased",
-    "roberta-base",
-    "albert-base-v2"
-]
+# Define model name
+MODEL_NAME = "distilbert-base-uncased"
 
-def train(model_name, tokenizer, tokenized_datasets, data_collator):
+def train(tokenizer, tokenized_datasets, data_collator, model_name=MODEL_NAME):
 
     model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
 
@@ -34,9 +30,9 @@ def train(model_name, tokenizer, tokenized_datasets, data_collator):
         eval_strategy='epoch',
         save_strategy='epoch',
         learning_rate=2e-5,
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=16,
-        num_train_epochs=1,
+        per_device_train_batch_size=64,
+        per_device_eval_batch_size=64,
+        num_train_epochs=10,
         weight_decay=0.01,
         load_best_model_at_end=True,
         logging_dir=os.path.join(output_dir, 'logs')
@@ -50,7 +46,8 @@ def train(model_name, tokenizer, tokenized_datasets, data_collator):
         eval_dataset=tokenized_datasets['test'],
         tokenizer=tokenizer,
         data_collator=data_collator,
-        compute_metrics=compute_metrics
+        compute_metrics=compute_metrics,
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=2)]
     )
 
     trainer.train()
@@ -67,19 +64,17 @@ def main():
     }
     dataset = load_dataset('csv', data_files=data_files)
 
-    for model_name in MODEL_NAMES:
+    # Tokenize data
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-        def preprocess_function(examples):
-            tokenized = tokenizer(examples['v2'], truncation=True)
-            tokenized['labels'] = examples['v1']
-            return tokenized
+    def preprocess_function(examples):
+        tokenized = tokenizer(examples['v2'], truncation=True)
+        tokenized['labels'] = examples['v1']
+        return tokenized
         
-        tokenized_datasets = dataset.map(preprocess_function, batched=True)
-        data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
-        train(model_name, tokenizer, tokenized_datasets, data_collator)
+    tokenized_datasets = dataset.map(preprocess_function, batched=True)
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+    train(tokenizer, tokenized_datasets, data_collator)
 
 if __name__ == "__main__" :
-    main()
-                                            
+    main()                                           
