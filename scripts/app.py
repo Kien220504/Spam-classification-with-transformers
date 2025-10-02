@@ -1,19 +1,9 @@
-import argparse
 import torch
 import gradio
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import os
 
-# Parse argument
-parser = argparse.ArgumentParser(description="Spam Classifier gradio")
-parser.add_argument(
-    "--model",
-    type=str,
-    default="../models/distilbert-base-uncased",
-    help="Model checkpoint directory"
-)
-args = parser.parse_args()
-
-MODEL_PATH = args.model
+MODEL_PATH = "../models/distilbert-base-uncased"
 
 # Load model & tokenizer
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
@@ -36,8 +26,14 @@ demo = gradio.Interface(
     fn=predict,
     inputs=gradio.Textbox(lines=3, placeholder="Your sms"),
     outputs=gradio.Label(num_top_classes=2),
-    title=f"Spam Classifier - {MODEL_PATH}"
+    title=f"Spam Classifier",
+    allow_flagging="never"
 )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(
+        server_name='0.0.0.0',
+        server_port=int(os.getenv("PORT", "7860")),
+        inbrowser=False,
+        share=True
+    )
