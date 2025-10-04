@@ -27,7 +27,7 @@ All notebooks/scripts assume the relative paths above. If you move folders/files
 
 ---
 
-## 2) Setup & installation (cài đặt)
+## 2) Setup & installation
 
 * **Python** ≥ 3.10
 * **PyTorch**: match your CPU/GPU/CUDA setup
