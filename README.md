@@ -126,7 +126,7 @@ python scripts/app.py
   )
   ```
   
-* Open the firewall/NAT for the chosen port or set share=True in demo.launch().
+* Open the firewall/NAT for the chosen port or set `share=True` in `demo.launch()`.
 
 **Path note:** If `app.py` uses a constant like `MODEL_PATH = "models/distilbert-base-uncased"`, update it to match your trained model directory (absolute or relative path as needed).
 
