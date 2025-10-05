@@ -50,6 +50,7 @@ pip install -r requirements.txt
 
 ## 3) Data
 
+* Data used in this repository: https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset
 * `datasets/spam.csv`: raw data. Include **text** (column *v2*) and **label** (column *v1*).
 * Run `notebooks/data_prepare.ipynb` to:
 
